@@ -3,3 +3,7 @@ import pytest_factoryboy
 
 from users.tests import factories as user_factories
 pytest_factoryboy.register(user_factories.UserFactory)
+pytest_factoryboy.register(user_factories.CompanyUserFactory)
+pytest_factoryboy.register(user_factories.UserDetailsFactory)
+pytest_factoryboy.register(user_factories.CompanyDetailsFactory)
+pytest_factoryboy.register(user_factories.AdminUserFactory)

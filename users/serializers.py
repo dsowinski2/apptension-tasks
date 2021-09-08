@@ -13,13 +13,12 @@ class UserSerializer(serializers.ModelSerializer):
 	details = serializers.SerializerMethodField('get_data')
 
 	def get_data(self, instance):
-		# print(instance)
 		if instance.is_company:
-			data = CompanyDetails.objects.filter(pk=instance.id)
-			# data = instance.select_related('CompanyDetails')
-			return CompanyDetailsSerializer(data, many=True).data
-		data = UserDetails.objects.filter(pk=instance.id)
-		return UserDetailsSerializer(data, many=True).data
+			details = instance.companydetails
+			return CompanyDetailsSerializer(details).data
+		details = instance.userdetails
+		return UserDetailsSerializer(details).data
+
 
 class UserDetailsSerializer(serializers.ModelSerializer):
 	class Meta:
