@@ -3,12 +3,6 @@ from django.urls import reverse
 
 pytestmark = pytest.mark.django_db
 
-from .. models import User
-
-@pytest.fixture(scope='session')
-def get_jwt_token:
-
-
 class TestUserObtainToken:
 	def test_fail_to_obtain_user_token(self, client, user_factory):
 		user = user_factory.create()

@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .serializers import UserSerializer
 from .models import User
+
 class ListUsers(APIView):
 	authentication_classes = [JWTAuthentication]
 	permission_classes = [IsAuthenticated]

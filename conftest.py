@@ -1,4 +1,3 @@
-import pytest
 import pytest_factoryboy
 
 from users.tests import factories as user_factories

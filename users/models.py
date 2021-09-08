@@ -1,33 +1,5 @@
-# from django.db import models
-# from django.contrib.auth.models import AbstractUser
-# from django.contrib.auth.models import UserManager
-
-# class User(AbstractUser):
-#     EMAIL_FIELD = 'email'
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = ['username']
-
-#     email = models.EmailField(unique=True)
-#     username = models.TextField(default=None)
-#     is_company = models.BooleanField(default=False)
-#     # user_details_id = models.OneToOneField(UserDetails, blank=True, default=None, null=True, on_delete=models.CASCADE)
-#     # company_details_id = models.OneToOneField(CompanyDetails, blank=True, default=None, null=True, on_delete=models.CASCADE,)	
-    
-# class UserDetails(models.Model):
-# 	user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, default=None, primary_key=True)
-# 	city = models.TextField()
-# 	street = models.TextField()
-
-# class CompanyDetails(models.Model):
-# 	user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, default=None, primary_key=True)
-# 	vat_id = models.TextField()
-
-
 from django.db import models
-from django.contrib.auth.models import (
-    BaseUserManager, AbstractBaseUser
-)
-
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None):
@@ -55,12 +27,8 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    email = models.EmailField(
-        verbose_name='email address',
-        max_length=255,
-        unique=True,
-    )
-    username = models.TextField(default=None)
+    email = models.EmailField(max_length=255, unique=True)
+    username = models.TextField(max_length=255, default=None)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_company = models.BooleanField(default=False)
@@ -91,9 +59,9 @@ class User(AbstractBaseUser):
 
 class UserDetails(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, default=None, primary_key=True)
-	city = models.TextField()
-	street = models.TextField()
+	city = models.TextField(max_length=255)
+	street = models.TextField(max_length=255)
 
 class CompanyDetails(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, default=None, primary_key=True)
-	vat_id = models.TextField()
+	vat_id = models.TextField(max_length=255)

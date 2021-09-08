@@ -1,11 +1,8 @@
-from django.apps import apps
-
 from rest_framework import serializers
 
 from .models import User, UserDetails, CompanyDetails
 
 class UserSerializer(serializers.ModelSerializer):
-
 	class Meta: 
 		model = User
 		fields = ['email', 'username', 'is_company', 'details']

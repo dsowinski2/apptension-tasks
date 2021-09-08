@@ -1,10 +1,7 @@
 import factory
-
 from django.contrib.auth import hashers
 
-
 from .. models import User, UserDetails, CompanyDetails
-
 
 class UserDetailsFactory(factory.django.DjangoModelFactory):
 	class Meta:
@@ -20,7 +17,6 @@ class CompanyDetailsFactory(factory.django.DjangoModelFactory):
 		
 	user = factory.SubFactory('users.tests.factories.CompanyUserFactory')
 	vat_id = 123
-
 
 class UserFactory(factory.django.DjangoModelFactory):
 	class Meta:
@@ -52,32 +48,5 @@ class CompanyUserFactory(UserFactory):
 class AdminUserFactory(UserFactory):
 	class Meta:
 		model = User
+		
 	is_admin = True
-
-# class CompanyDetailsFactory:
-
-
-# class CategoryPostFactory(DjangoModelFactory):
-#     post = SubFactory('post.factories.PostFactory')
-#     weight = fuzzy.FuzzyChoice(Weight)
-#     category = SubFactory('category.factories.CategoryFactory')
-
-#     class Meta:
-#         model = 'post.CategoryPost'
-#         # because the category is selected randomly
-#         django_get_or_create = ['category', 'post']
-
-
-# class PostFactory(DjangoModelFactory):
-#     body = Faker('paragraph')
-#     # user = SubFactory(UserFactory)
-#     user = SubFactory('user.factories.UserFactory')
-
-#     categories = RelatedFactoryList(
-#         CategoryPostFactory,
-#         factory_related_name='post',
-#         size=lambda: random.randint(1, 5),
-#     )
-
-#     class Meta:
-#         model = 'post.Post'
