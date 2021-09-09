@@ -22,7 +22,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 	class Meta:
 		model = User
 
-	email = 'email@email.com'
+	email = factory.Sequence(lambda n: 'email{}@email.com'.format(n))
 	username = 'username'
 	password = 'password'
 	is_active = True
@@ -48,5 +48,5 @@ class CompanyUserFactory(UserFactory):
 class AdminUserFactory(UserFactory):
 	class Meta:
 		model = User
-		
+
 	is_admin = True
