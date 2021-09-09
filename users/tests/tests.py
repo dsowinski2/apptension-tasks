@@ -60,9 +60,9 @@ class TestListUsers:
 		assert len(response.data) == 0
 
 	def test_both_type_of_users_returned(self, client, user_factory, company_user_factory):
-		user_1 = user_factory.create()
+		user = user_factory.create()
 		user_2 = company_user_factory.create()
-		response = client.get(reverse('list_users'), HTTP_AUTHORIZATION=get_tokens_for_user(user_1))
+		response = client.get(reverse('list_users'), HTTP_AUTHORIZATION=get_tokens_for_user(user))
 
 		assert response.status_code == 200
 		assert len(response.data) == 2
