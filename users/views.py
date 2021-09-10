@@ -11,7 +11,7 @@ class ListUsers(APIView):
 	permission_classes = [IsAuthenticated]
 	serializer_class = UserSerializer
 	def get_queryset(self):
-		users = User.objects.filter(is_admin=False)
+		users = User.objects.filter(is_admin=False).select_related('userdetails', 'companydetails')
 		return users
 
 	def get(self, request):
