@@ -25,12 +25,19 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
+    ACCOUNT_TYPE_CHOICES = [
+        ("FREE", "FREE"),
+        ("PREMIUM", "PREMIUM"),
+    ]
+
     email = models.EmailField(max_length=255, unique=True)
     username = models.TextField(max_length=255, default=None)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_company = models.BooleanField(default=False)
-
+    account_type = models.CharField(
+        max_length=10, choices=ACCOUNT_TYPE_CHOICES, null=False
+    )
     objects = UserManager()
 
     USERNAME_FIELD = "email"
@@ -44,6 +51,16 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+
+    def set_account_type(self):
+        if self.is_admin and self.is_company:
+            return "PREMIUM"
+        else:
+            return "FREE"
+
+    def save(self, *args, **kwargs):
+        self.account_type = self.set_account_type()
+        super(User, self).save(*args, **kwargs)
 
     @property
     def is_staff(self):
