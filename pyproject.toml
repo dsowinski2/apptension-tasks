@@ -1,0 +1,3 @@
+[tool.black]
+exclude = "/(.git|migrations)/"
+target-versions = "py38"
