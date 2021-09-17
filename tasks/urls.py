@@ -18,8 +18,11 @@ from django.urls import path
 
 from rest_framework_simplejwt import views as jwt_views
 from users import views
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('users/', views.ListUsers.as_view(), name='list_users')
+    path("admin/", admin.site.urls),
+    path(
+        "api/token/", jwt_views.TokenObtainPairView.as_view(), name="token_obtain_pair"
+    ),
+    path("users/", views.ListUsers.as_view(), name="list_users"),
 ]

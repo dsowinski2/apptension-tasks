@@ -6,16 +6,19 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import UserSerializer
 from .models import User
 
+
 class ListUsers(APIView):
-	authentication_classes = [JWTAuthentication]
-	permission_classes = [IsAuthenticated]
-	serializer_class = UserSerializer
-	def get_queryset(self):
-		users = User.objects.filter(is_admin=False)
-		return users
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
 
-	def get(self, request):
-		users = self.get_queryset()
-		serializer = UserSerializer(users, many=True)
-		return Response(serializer.data)
+    def get_queryset(self):
+        users = User.objects.filter(is_admin=False).select_related(
+            "userdetails", "companydetails"
+        )
+        return users
 
+    def get(self, request):
+        users = self.get_queryset()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
