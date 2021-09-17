@@ -7,7 +7,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.views.generic import TemplateView
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, CreateOrderSerializer
 from .models import User
 
 from products.utils import StripeAPI
@@ -38,7 +38,7 @@ class StripeCheckoutView(APIView):
         checkout_session = stripe_api.create_checkout_session_stripe(
             pk, request.user.id
         )
-        print(checkout_session)
+        print(checkout_session.url)
         return redirect(checkout_session.url, code=303)
 
 
@@ -55,21 +55,30 @@ class CancelledCheckoutView(TemplateView):
 
 
 class StripeWebhooksView(APIView):
-    endpoint_secret = "whsec_Pk9ZEDdBzCoCp1XoqDSKSZiHMq7RM2TD"
-
     def post(self, request):
-        payload = request.body
-        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+
         event = None
         try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, self.endpoint_secret
-            )
+            stripe_api = StripeAPI()
+            event = stripe_api.create_webhook_event_stripe(request)
         except ValueError as e:
             """Invalid payload"""
-            return HttpResponse(status=400)
+            return Response(status=400)
         except stripe.error.SignatureVerificationError as e:
             """Invalid signature"""
-            return HttpResponse(status=400)
-        print(event)
+            return Response(status=400)
+        if event["type"] == "checkout.session.completed":
+            webhook_data = event["data"]["object"]
+            data = {
+                "amount_total": webhook_data["amount_total"],
+                "email": webhook_data["customer_details"]["email"],
+                "user": webhook_data["metadata"]["user_id"],
+                "product": webhook_data["metadata"]["product"],
+                "payment_status": webhook_data["payment_status"],
+            }
+            serializer = CreateOrderSerializer(data=data)
+            if not serializer.is_valid():
+                return Response(serializer.errors)
+            serializer.save()
+
         return Response(status=200)

@@ -4,6 +4,7 @@ from django.conf import settings
 
 class StripeAPI:
     stripe.api_key = settings.STRIPE_SECRET_KEY
+    endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     def create_product_with_price_stripe(self, product_name, price):
         price = price * 10
@@ -60,3 +61,14 @@ class StripeAPI:
             },
         )
         return checkout_session
+
+    def create_webhook_event_stripe(self, request):
+        payload = request.body
+        sig_header = None
+        if "HTTP_STRIPE_SIGNATURE" in request.META:
+            sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+            
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, self.endpoint_secret
+        )
+        return event

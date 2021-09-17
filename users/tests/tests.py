@@ -2,6 +2,9 @@ import pytest
 from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
+from django.db.models import Count
+
+from products.models import Order
 
 pytestmark = pytest.mark.django_db
 
@@ -90,3 +93,93 @@ class TestListUsers:
         assert response.data[0]["details"]["street"]
         assert response.data[0]["details"]["city"]
         assert response.data[1]["details"]["vat_id"]
+
+    def test_create_checkout_session(
+        self, client, user_factory, create_checkout_session_mock
+    ):
+        user = user_factory()
+        response = client.post(
+            reverse("stripe-checkout", args=(1,)),
+            HTTP_AUTHORIZATION=get_tokens_for_user(user),
+        )
+
+        assert response.status_code == status.HTTP_302_FOUND
+        assert response.headers["Location"] == "https://url.com"
+
+    def test_create_order_webhook(
+        self, client, user_factory, create_webhook_event_mock
+    ):
+        user = user_factory()
+        response = client.post(reverse("stripe-webhook"))
+        count = Order.objects.aggregate(Count("id"))
+
+        assert response.status_code == status.HTTP_200_OK
+        assert count["id__count"] == 1
+
+    def test_created_order_data(self, client, user_factory, create_webhook_event_mock):
+        user = user_factory()
+        response = client.post(reverse("stripe-webhook"))
+        order = Order.objects.get(id=1)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert order.amount_total == 100
+        assert order.product == "product"
+        assert order.email == "email@email.com"
+
+    def test_expired_checkout_webhook(
+        self, client, user_factory, create_webhook_expired_event_mock
+    ):
+        user = user_factory()
+        response = client.post(reverse("stripe-webhook"))
+        count = Order.objects.aggregate(Count("id"))
+
+        assert response.status_code == status.HTTP_200_OK
+        assert count["id__count"] == 0
+
+
+@pytest.fixture()
+def create_checkout_session_mock(mocker):
+    class MockResponse:
+        def __init__(self, url):
+            self.url = url
+
+    return mocker.patch(
+        "products.utils.StripeAPI.create_checkout_session_stripe",
+        return_value=MockResponse("https://url.com"),
+    )
+
+
+@pytest.fixture()
+def create_webhook_event_mock(mocker):
+    return mocker.patch(
+        "products.utils.StripeAPI.create_webhook_event_stripe",
+        return_value={
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "amount_total": 100,
+                    "customer_details": {"email": "email@email.com"},
+                    "metadata": {"user_id": 1, "product": "product"},
+                    "payment_status": "paid",
+                }
+            },
+        },
+    )
+
+
+@pytest.fixture()
+def create_webhook_expired_event_mock(mocker):
+    return mocker.patch(
+        "products.utils.StripeAPI.create_webhook_event_stripe",
+        return_value={
+            "type": "checkout.session.expired",
+            "data": {
+                "object": {
+                    "amount_total": 100,
+                    "customer_details": {"email": "email@email.com"},
+                    "metadata": {"user_id": 1, "product": "product"},
+                    "payment_status": "paid",
+                }
+            },
+        },
+    )
