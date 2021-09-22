@@ -1,10 +1,18 @@
 import stripe
+import inspect
 from django.conf import settings
+from rest_framework.exceptions import APIException
+
+from .error import ErrorHandler
 
 
 class StripeAPI:
     stripe.api_key = settings.STRIPE_SECRET_KEY
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+
+    def evaluate_stripe_response(self, stripe_response):
+        if not len(stripe_response):
+            raise APIException("No Data")
 
     def create_product_with_price_stripe(self, product_name, price):
         price = price * 10
@@ -14,12 +22,20 @@ class StripeAPI:
         return data
 
     def list_products_stripe(self):
-        products = stripe.Product.list()
-        return products["data"]
+        try:
+            products = stripe.Product.list()
+            self.evaluate_stripe_response(products)
+            return products["data"]
+        except Exception as e:
+            ErrorHandler().create_error(e)
 
     def list_prices_stripe(self):
-        prices = stripe.Price.list()
-        return prices["data"]
+        try:
+            prices = stripe.Price.list()
+            self.evaluate_stripe_response(prices)
+            return prices["data"]
+        except Exception as e:
+            ErrorHandler().create_error(e)
 
     def combine_product_with_price(self):
         prices = self.list_prices_stripe()
@@ -67,7 +83,7 @@ class StripeAPI:
         sig_header = None
         if "HTTP_STRIPE_SIGNATURE" in request.META:
             sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
-            
+
         event = stripe.Webhook.construct_event(
             payload, sig_header, self.endpoint_secret
         )
