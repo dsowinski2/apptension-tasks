@@ -10,6 +10,7 @@ class UserManager(BaseUserManager):
         user = self.model(email=self.normalize_email(email), username=username)
 
         user.set_password(password)
+
         user.save(using=self._db)
         return user
 
@@ -52,15 +53,12 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
+    @property
     def set_account_type(self):
         if self.is_admin and self.is_company:
             return "PREMIUM"
         else:
             return "FREE"
-
-    def save(self, *args, **kwargs):
-        self.account_type = self.set_account_type()
-        super(User, self).save(*args, **kwargs)
 
     @property
     def is_staff(self):
