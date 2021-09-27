@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 from django.conf import settings
 from rest_framework.exceptions import APIException
 import stripe
@@ -14,9 +16,8 @@ class StripeAPI:
             raise APIException("No Data")
 
     def create_product_with_price_stripe(self, product_name, price):
-        price = price * 10
         data = stripe.Price.create(
-            unit_amount=price, currency="eur", product_data={"name": product_name}
+            unit_amount=price * 10, currency="eur", product_data={"name": product_name}
         )
         return data
 
@@ -68,8 +69,8 @@ class StripeAPI:
                 "p24",
             ],
             mode="payment",
-            success_url="http://127.0.0.1:8000" + "/users/stripe/success/",
-            cancel_url="http://127.0.0.1:8000" + "/users/stripe/cancel/",
+            success_url=urljoin(settings.BASE_URL + "/users/stripe/success/"),
+            cancel_url=urljoin(settings.BASE_URL, "/users/stripe/cancel/"),
             metadata={
                 "user_id": user,
                 "product": self.get_product_with_price_stripe(price_id),

@@ -22,7 +22,8 @@ STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET")
 
 STRIPE_API_KEY = env("STRIPE_API_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
+BASE_URL = env("BASE_URL")
+
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]

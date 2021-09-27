@@ -38,7 +38,6 @@ class StripeCheckoutView(APIView):
         checkout_session = stripe_api.create_checkout_session_stripe(
             pk, request.user.id
         )
-        print(checkout_session.url)
         return redirect(checkout_session.url, code=303)
 
 
@@ -62,11 +61,11 @@ class StripeWebhooksView(APIView):
             stripe_api = StripeAPI()
             event = stripe_api.create_webhook_event_stripe(request)
         except ValueError as e:
-            """Invalid payload"""
             return Response(status=400)
+
         except stripe.error.SignatureVerificationError as e:
-            """Invalid signature"""
             return Response(status=400)
+            
         if event["type"] == "checkout.session.completed":
             webhook_data = event["data"]["object"]
             data = {

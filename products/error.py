@@ -15,6 +15,6 @@ class ErrorHandler:
     def create_error(self, exception):
         self.logger.error(exception.json_body)
         if getattr(exception, "__module__") == stripe.error.__name__:
-            raise StripeException()
+            raise StripeException() from exception
         else:
-            raise APIException()
+            raise APIException() from exception
