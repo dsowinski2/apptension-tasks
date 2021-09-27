@@ -1,7 +1,6 @@
-import stripe
-import inspect
 from django.conf import settings
 from rest_framework.exceptions import APIException
+import stripe
 
 from .error import ErrorHandler
 
@@ -80,9 +79,7 @@ class StripeAPI:
 
     def create_webhook_event_stripe(self, request):
         payload = request.body
-        sig_header = None
-        if "HTTP_STRIPE_SIGNATURE" in request.META:
-            sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
+        sig_header = request.META["HTTP_STRIPE_SIGNATURE"]
 
         event = stripe.Webhook.construct_event(
             payload, sig_header, self.endpoint_secret

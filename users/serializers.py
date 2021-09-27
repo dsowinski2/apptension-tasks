@@ -34,7 +34,7 @@ class CompanyDetailsSerializer(serializers.ModelSerializer):
 class CreateOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = "__all__"
-
+        fields = ['product', 'user', 'email', 'payment_status', 'amount_total']
+        
     def create(self, validated_data):
         return Order.objects.create(**validated_data)
