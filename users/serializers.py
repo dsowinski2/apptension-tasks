@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import User, UserDetails, CompanyDetails
+from products.models import Order
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -28,3 +29,12 @@ class CompanyDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyDetails
         fields = ["vat_id"]
+
+
+class CreateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['product', 'user', 'email', 'payment_status', 'amount_total']
+        
+    def create(self, validated_data):
+        return Order.objects.create(**validated_data)
